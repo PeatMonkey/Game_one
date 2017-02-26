@@ -5,6 +5,6 @@
 
 
 TArray<AActor *> APatrollingGuard::GetPatrolPoints() {
-	return PatrolPoints;
+	return PatrolPointsCPP;
 }
 
