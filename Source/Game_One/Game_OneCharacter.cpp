@@ -1,6 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "Game_One.h"
+#include "Pickup.h"
 #include "Game_OneCharacter.h"
 
 AGame_OneCharacter::AGame_OneCharacter()
@@ -58,6 +59,36 @@ void AGame_OneCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 
 	InputComponent->BindTouch(IE_Pressed, this, &AGame_OneCharacter::TouchStarted);
 	InputComponent->BindTouch(IE_Released, this, &AGame_OneCharacter::TouchStopped);
+
+	//input for collecting pickups from the environment
+	InputComponent->BindAction("Collect Item", IE_Pressed, this, &AGame_OneCharacter::CollectPickups);
+}
+
+void AGame_OneCharacter::CollectPickups() {
+	
+	//get all overlapping actors and then store than into an array
+	TArray<AActor*> PotentialPickupsInRange;
+	CollectionSphere->GetOverlappingActors(PotentialPickupsInRange);
+
+	//for each actor that we collect 
+	for (int32 collectedItem = 0; collectedItem < PotentialPickupsInRange.Num() ; ++collectedItem) {
+		
+		//Try to cast the actors to Pickup
+		APickup* const Test = Cast<APickup>(PotentialPickupsInRange[collectedItem]);
+
+		//if of type pickup and the pickup is active (ready for pickup)
+		if (Test && !Test->IsPendingKill() && Test->IsActive()) {
+
+			//call this version of Collected() as it will capture any Blueprint script we may use to override the function
+			Test->Collected();
+
+			//deactivate the item we picked up
+			Test->SetActive(false);
+		}
+
+		//then call teh pickups was collectied function and then deactivate the pickup
+	}
+		
 }
 
 void AGame_OneCharacter::MoveRight(float Value)
@@ -76,4 +107,3 @@ void AGame_OneCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const
 {
 	StopJumping();
 }
-

@@ -34,7 +34,15 @@ protected:
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	
+
+	//Called when we press a key for collecting the pickups
+	UFUNCTION(BlueprintCallable, Category = "Inventory Pickups")
+	void CollectPickups();
+	
+	
 	// End of APawn interface
+
 
 
 public:
