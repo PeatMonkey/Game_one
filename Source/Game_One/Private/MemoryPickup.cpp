@@ -3,10 +3,12 @@
 #include "Game_One.h"
 #include "MemoryPickup.h"
 
-MemoryPickup::MemoryPickup()
-{
+//set default values
+AMemoryPickup::AMemoryPickup() {
+
+	//as soon as the battery is initialized physics propery wil be enabled
+	GetMesh()->SetSimulatePhysics(true);
+
 }
 
-MemoryPickup::~MemoryPickup()
-{
-}
+

@@ -13,3 +13,4 @@ AGame_OneGameMode::AGame_OneGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 }
+

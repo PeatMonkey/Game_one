@@ -2,12 +2,22 @@
 
 #pragma once
 
+#include "Pickup.h"
+#include "MemoryPickup.generated.h"
+
 /**
  * 
  */
-class GAME_ONE_API MemoryPickup
+UCLASS()
+class GAME_ONE_API AMemoryPickup : public APickup
 {
+	GENERATED_BODY()
+
 public:
-	MemoryPickup();
-	~MemoryPickup();
+
+	// Sets default values for this actor's properties
+	AMemoryPickup();
+	
+	
+	
 };
