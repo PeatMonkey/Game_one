@@ -11,4 +11,10 @@ AMemoryPickup::AMemoryPickup() {
 
 }
 
+void AMemoryPickup::Collected_Implementation() {
+	// use the base pickup behavior
+	Super::Collected_Implementation();
 
+	//get ride of the item after the pickup
+	Destroy();
+}

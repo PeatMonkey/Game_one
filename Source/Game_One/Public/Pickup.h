@@ -58,6 +58,14 @@ public:
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return PickupMesh; }
 	FORCEINLINE class FString GetName() const { return ItemName; }
 
+	//This function is call ed when the item has been collected
+	//BlueprintNativeEvent is a macro param that allows a function to be overriden in the blueprint
+	UFUNCTION(BlueprintNativeEvent)
+	void Collected();
+
+	//overide this one in child classes as the Collected() fucntion is a BlueprintNativeEvent
+	virtual void Collected_Implementation();
+
 protected:
 	//True when the item can be picked up
 	bool bIsActive;

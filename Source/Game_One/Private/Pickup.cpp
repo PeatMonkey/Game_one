@@ -51,3 +51,8 @@ void APickup::SetGlowEffect(bool Status) {
 	PickupMesh->SetRenderCustomDepth(Status);
 }
 
+//gives debug information about the item that we picked up
+void APickup::Collected_Implementation() {
+	FString DebugString = GetName();
+	UE_LOG(LogClass, Log, TEXT("You have collected %s"), *DebugString);
+}

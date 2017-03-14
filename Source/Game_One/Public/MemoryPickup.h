@@ -18,6 +18,7 @@ public:
 	// Sets default values for this actor's properties
 	AMemoryPickup();
 	
-	
+	//overide the Collected function
+	void Collected_Implementation() override;
 	
 };

@@ -39,6 +39,11 @@ AGame_OneCharacter::AGame_OneCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	//create the collection sphere of the character and then connect it to the characters root component
+	CollectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollectionSphere"));
+	CollectionSphere->AttachTo(RootComponent);
+	CollectionSphere->SetSphereRadius(CollectionSphereRadius);
 }
 
 //////////////////////////////////////////////////////////////////////////
