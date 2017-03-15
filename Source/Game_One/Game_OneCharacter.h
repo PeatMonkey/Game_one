@@ -39,7 +39,16 @@ protected:
 	//Called when we press a key for collecting the pickups
 	UFUNCTION(BlueprintCallable, Category = "Inventory Pickups")
 	void CollectPickups();
-	
+
+	//Last Pickup item seen
+	APickup* LastItemSeen;
+
+	//Inventory Size
+	int MaxInventorySize;
+
+	//Characters inventory 
+	UPROPERTY(VisibleAnywhere)
+	TArray<APickup*> Inventory;
 	
 	// End of APawn interface
 
@@ -59,5 +68,9 @@ public:
 
 	/*Returns the CollectionSphere Subobject*/
 	FORCEINLINE class USphereComponent* GetCollectionSphere() const { return CollectionSphere; }
+
+	void BeginPlay();
+
+	void Tick(float DeltaSeconds);
 
 };

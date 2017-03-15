@@ -45,6 +45,13 @@ AGame_OneCharacter::AGame_OneCharacter()
 	CollectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollectionSphere"));
 	CollectionSphere->AttachTo(RootComponent);
 	CollectionSphere->SetSphereRadius(CollectionSphereRadius);
+
+	////Inventory Size
+	MaxInventorySize = 5;
+
+	//Characters inventory 
+	UPROPERTY(VisibleAnywhere)
+	Inventory.SetNum(MaxInventorySize);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -62,6 +69,8 @@ void AGame_OneCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 
 	//input for collecting pickups from the environment
 	InputComponent->BindAction("Collect Item", IE_Pressed, this, &AGame_OneCharacter::CollectPickups);
+
+
 }
 
 void AGame_OneCharacter::CollectPickups() {
@@ -106,4 +115,19 @@ void AGame_OneCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const
 void AGame_OneCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	StopJumping();
+}
+
+void AGame_OneCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Initializing our reference
+	LastItemSeen = nullptr;
+}
+
+void AGame_OneCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	//Update inventory evey tick
+
 }
