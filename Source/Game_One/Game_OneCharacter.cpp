@@ -46,11 +46,10 @@ AGame_OneCharacter::AGame_OneCharacter()
 	CollectionSphere->AttachTo(RootComponent);
 	CollectionSphere->SetSphereRadius(CollectionSphereRadius);
 
-	////Inventory Size
 	MaxInventorySize = 5;
 
-	//Characters inventory 
-	UPROPERTY(VisibleAnywhere)
+	PickupInFocus = nullptr;
+
 	Inventory.SetNum(MaxInventorySize);
 }
 
@@ -67,47 +66,166 @@ void AGame_OneCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	InputComponent->BindTouch(IE_Pressed, this, &AGame_OneCharacter::TouchStarted);
 	InputComponent->BindTouch(IE_Released, this, &AGame_OneCharacter::TouchStopped);
 
+	//Scan for pickup items in the nearby area
+	InputComponent->BindAction("Scan for Nearby Pickup Items", IE_Pressed, this, &AGame_OneCharacter::ScanForPickups);
+
+	//input for cycling through the items that are currently in the collection Sphere 
+	InputComponent->BindAction("Cycle Next Pickup Item", IE_Pressed, this, &AGame_OneCharacter::NextNearbyPickup);
+
 	//input for collecting pickups from the environment
 	InputComponent->BindAction("Collect Item", IE_Pressed, this, &AGame_OneCharacter::CollectPickups);
 
+}
 
+float AGame_OneCharacter::CalcDistanceBetweenPawnAndActor(AActor * Object)
+{
+	float distance = 0.0f;
+	FVector VectorDifference;
+	VectorDifference = this->GetActorLocation() - Object->GetActorLocation();
+	
+	distance = VectorDifference.Size();
+	
+	return distance;
+}
+
+bool AGame_OneCharacter::ClosestPickupWithinCollectionRange(APickup * Object)
+{
+	float ShortestDistance = 0;
+
+	if (NearbyItems.Num() == 0) {
+		return false;
+	}
+
+
+	float temp = 0;
+
+	for (int Pickup = 0; Pickup < NearbyItems.Num(); Pickup++) {
+		temp = CalcDistanceBetweenPawnAndActor(Cast<AActor>(NearbyItems[Pickup]));
+
+		if (temp >= ShortestDistance) {
+			Object = NearbyItems[Pickup];
+			ShortestDistance = temp;
+		}
+	}
+
+
+	/* for (APickup* Pickup : NearbyItems) {
+		temp = CalcDistanceBetweenPawnAndActor(Cast<AActor>(Pickup));
+
+		if (temp >= ShortestDistance) {
+			Object = Pickup;
+			ShortestDistance = temp;
+		}
+	} */
+	
+	return true;
 }
 
 void AGame_OneCharacter::CollectPickups() {
 	
-	//get all overlapping actors and then store than into an array
-	TArray<AActor*> PotentialPickupsInRange;
-	CollectionSphere->GetOverlappingActors(PotentialPickupsInRange);
 
-	//for each actor that we collect 
-	for (int32 collectedItem = 0; collectedItem < PotentialPickupsInRange.Num() ; ++collectedItem) {
-		
-		//Try to cast the actors to Pickup
-		APickup* const Test = Cast<APickup>(PotentialPickupsInRange[collectedItem]);
+	//if of type pickup and the pickup is active (ready for pickup)
+	if (PickupInFocus && !PickupInFocus->IsPendingKill() && PickupInFocus->IsActive()) {
 
-		//if of type pickup and the pickup is active (ready for pickup)
-		if (Test && !Test->IsPendingKill() && Test->IsActive()) {
+		//call this version of Collected() as it will capture any Blueprint script we may use to override the function
+		PickupInFocus->Collected();
 
-			//call this version of Collected() as it will capture any Blueprint script we may use to override the function
-			Test->Collected();
-
-			//deactivate the item we picked up
-			Test->SetActive(false);
-		}
-
-		//then call teh pickups was collectied function and then deactivate the pickup
+		PickupInFocus->SetGlowEffect(false);
+		//deactivate the item we picked up
+		PickupInFocus->SetActive(false);
 	}
 		
 }
 
-void AGame_OneCharacter::MoveRight(float Value)
-{
+void AGame_OneCharacter::ScanForPickups() {
+
+	NearbyItems.Empty();
+
+	//get all overlapping actors and then store than into an array
+	TArray<AActor*> PotentialPickupsInRange;
+	TArray<APickup*> Temp;
+	CollectionSphere->GetOverlappingActors(PotentialPickupsInRange);
+
+	//for each actor that we collect, find which ones are Pickup items and then save them in NearbyItems array 
+	for (int32 Item = 0; Item < PotentialPickupsInRange.Num(); ++Item) {
+
+		APickup* const pickup = Cast<APickup>(PotentialPickupsInRange[Item]);
+
+		if (pickup && !pickup->IsPendingKill() && pickup->IsActive()) {
+			Temp.Add(pickup);
+		}
+	}
+
+	NearbyItems = Temp;
+	
+	//Sort NearbyItems array based on distance from the character (Selection Sort)
+	int i, j, minIndex;
+	APickup* tmp;
+	int n = NearbyItems.Num();
+
+	for (i = 0; i < n - 1; i++) {
+
+		minIndex = i;
+		for (j = i + 1; j < n; j++)
+			if (CalcDistanceBetweenPawnAndActor(Cast<AActor>(NearbyItems[j])) < CalcDistanceBetweenPawnAndActor(Cast<AActor>(NearbyItems[minIndex]))) {
+				minIndex = j;
+			}
+
+		if (minIndex != i) {
+			tmp = NearbyItems[i];
+			NearbyItems[i] = NearbyItems[minIndex];
+			NearbyItems[minIndex] = tmp;
+		}
+	}
+
+	LastItemSeen = PickupInFocus;
+	LastItemSeen->SetGlowEffect(false);
+
+	PickupInFocus = NearbyItems[0];
+
+	if (PickupInFocus != nullptr) {
+		PickupInFocus->SetGlowEffect(true);
+	}
+}
+
+void AGame_OneCharacter::NextNearbyPickup() {
+	
+	PickupInFocus->SetGlowEffect(false);
+
+	if (NearbyItems.Num() == 1) {
+		return;
+	}
+
+	LastItemSeen = PickupInFocus;
+
+	for (int32 item = 0; item < NearbyItems.Num(); item++) {
+		
+		if (NearbyItems[item] == PickupInFocus) {
+			
+			LastItemSeen = PickupInFocus;
+			
+			if (item + 1 < NearbyItems.Num()) {
+			
+				PickupInFocus = NearbyItems[item + 1];
+		
+			} else {
+				
+				LastItemSeen = PickupInFocus;
+				PickupInFocus = NearbyItems[0];
+			
+			}
+		} 
+	}
+	
+	PickupInFocus->SetGlowEffect(true);
+}
+
+void AGame_OneCharacter::MoveRight(float Value) {
 	// add movement in that direction
 	AddMovementInput(FVector(0.f,-1.f,0.f), Value);
 }
 
-void AGame_OneCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
+void AGame_OneCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location) {
 	// jump on any touch
 	Jump();
 }
@@ -117,17 +235,20 @@ void AGame_OneCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const
 	StopJumping();
 }
 
+//called when the level is loaded
 void AGame_OneCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Initializing our reference
 	LastItemSeen = nullptr;
+	PickupInFocus = nullptr;
 }
 
-void AGame_OneCharacter::Tick(float DeltaSeconds)
+//Called very every frame
+/* void AGame_OneCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	//Update inventory evey tick
-
-}
+	
+	//Scan for pickups 
+	//ScanForPickups();
+} */

@@ -48,7 +48,10 @@ void APickup::SetActive(bool NewPickupState) {
 
 //ensure we highlight the item that we pick up
 void APickup::SetGlowEffect(bool Status) {
-	PickupMesh->SetRenderCustomDepth(Status);
+	if (this != nullptr) {
+		PickupMesh->SetRenderCustomDepth(Status);
+	}
+	
 }
 
 //gives debug information about the item that we picked up
