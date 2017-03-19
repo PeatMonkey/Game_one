@@ -158,6 +158,11 @@ void AGame_OneCharacter::ScanForPickups() {
 
 	NearbyItems = Temp;
 	
+	if (NearbyItems.Num() == 0) {
+		UE_LOG(LogTemp, Warning, TEXT("There was an issue captian"));
+		return;
+	}
+
 	//Sort NearbyItems array based on distance from the character (Selection Sort)
 	int i, j, minIndex;
 	APickup* tmp;
@@ -178,6 +183,10 @@ void AGame_OneCharacter::ScanForPickups() {
 		}
 	}
 
+	for (APickup* item : NearbyItems) {
+		UE_LOG(LogTemp, Warning, TEXT("Pickup name: %s"), *item->GetFName().ToString());
+	}
+
 	LastItemSeen = PickupInFocus;
 	LastItemSeen->SetGlowEffect(false);
 
@@ -190,13 +199,38 @@ void AGame_OneCharacter::ScanForPickups() {
 
 void AGame_OneCharacter::NextNearbyPickup() {
 	
-	PickupInFocus->SetGlowEffect(false);
-
-	if (NearbyItems.Num() == 1) {
+	if (NearbyItems.Num() <= 1) {
 		return;
 	}
 
-	LastItemSeen = PickupInFocus;
+	PickupInFocus->SetGlowEffect(false);
+
+	int32 n = NearbyItems.Num();
+
+	for (int32 item = 0; item < n; item++) {
+
+		//safety first kids
+		if (!NearbyItems.IsValidIndex(item) && (NearbyItems[item] == nullptr)) {
+			UE_LOG(LogTemp, Warning, TEXT("THere was a issue caption!"));
+			continue;
+		}
+
+		if ((NearbyItems[item] == PickupInFocus) && ((item + 1) < n)) {
+			LastItemSeen = PickupInFocus;
+			PickupInFocus = NearbyItems[item + 1];
+			PickupInFocus->SetGlowEffect(true);
+			break;
+		} else if (item + 1 >= n) {
+			LastItemSeen = PickupInFocus;
+			PickupInFocus = NearbyItems[0];
+			PickupInFocus->SetGlowEffect(true);
+			break;
+		} 
+	}
+
+	PickupInFocus->SetGlowEffect(true);
+
+	/*LastItemSeen = PickupInFocus;
 
 	for (int32 item = 0; item < NearbyItems.Num(); item++) {
 		
@@ -215,9 +249,9 @@ void AGame_OneCharacter::NextNearbyPickup() {
 			
 			}
 		} 
-	}
+	}*/
 	
-	PickupInFocus->SetGlowEffect(true);
+	
 }
 
 void AGame_OneCharacter::MoveRight(float Value) {
