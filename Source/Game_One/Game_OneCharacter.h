@@ -43,7 +43,7 @@ protected:
 	//Find the closest Pickup item within the collection sphere. Returns False if nothing is found;
 	bool ClosestPickupWithinCollectionRange(APickup* Object);
 
-	//Called when we press a key for collecting the pickups
+	//Collect pickup in focus and then store it in our inventory
 	UFUNCTION(BlueprintCallable, Category = "Inventory Pickups")
 	void CollectPickups();
 
@@ -54,6 +54,8 @@ protected:
 	//Cycle through each nearby pickup items and apply outline effect
 	UFUNCTION(BlueprintCallable, Category = "Inventory Pickups")
 	void NextNearbyPickup();
+
+	//UFUNCTION(BlueprintCallable, Category = "Inventory Pickups")
 
 	//Last Pickup item seen
 	APickup* LastItemSeen;

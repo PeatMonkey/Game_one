@@ -133,6 +133,14 @@ void AGame_OneCharacter::CollectPickups() {
 		PickupInFocus->SetGlowEffect(false);
 		//deactivate the item we picked up
 		PickupInFocus->SetActive(false);
+
+		//See is there is room in the inventory for more items
+		int32 AvailableSpot = Inventory.Find(nullptr);
+		if (AvailableSpot != INDEX_NONE) {
+			Inventory[AvailableSpot] = PickupInFocus;
+			NextNearbyPickup();
+			PickupInFocus->Destroy();
+		}
 	}
 		
 }
@@ -229,29 +237,6 @@ void AGame_OneCharacter::NextNearbyPickup() {
 	}
 
 	PickupInFocus->SetGlowEffect(true);
-
-	/*LastItemSeen = PickupInFocus;
-
-	for (int32 item = 0; item < NearbyItems.Num(); item++) {
-		
-		if (NearbyItems[item] == PickupInFocus) {
-			
-			LastItemSeen = PickupInFocus;
-			
-			if (item + 1 < NearbyItems.Num()) {
-			
-				PickupInFocus = NearbyItems[item + 1];
-		
-			} else {
-				
-				LastItemSeen = PickupInFocus;
-				PickupInFocus = NearbyItems[0];
-			
-			}
-		} 
-	}*/
-	
-	
 }
 
 void AGame_OneCharacter::MoveRight(float Value) {
