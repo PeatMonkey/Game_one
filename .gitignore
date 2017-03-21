@@ -11,3 +11,7 @@ Saved
 *.xcodeproj
 *.xcworkspace
 *Content/StarterContent/
+*Content/Trash/
+*.vs/
+*.vs
+*.ipch
