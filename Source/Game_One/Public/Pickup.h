@@ -12,17 +12,15 @@ class GAME_ONE_API APickup : public AActor
 private:
 
 	//mesh of the item we are picking up
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* PickupMesh;
 
 	//texture of the current pickup item
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
-	//UPROPERTY(EditAnywhere, Category = "PickupProperties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
 	UTexture2D* PickupTexture;
 
 	// Name of the item
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
-	//UPROPERTY(EditAnywhere, Category = "PickupProperties")
 	FString ItemName;
 
 
@@ -70,7 +68,4 @@ protected:
 	//True when the item can be picked up
 	bool bIsActive;
 
-	//UPROPERTY(VisibleAnywhere)
-	//UStaticMeshComponent* PickupSM;
-	
 };

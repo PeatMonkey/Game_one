@@ -14,6 +14,7 @@ APickup::APickup()
 	//PickupSM = CreateDefaultSubobject<UStaticMeshComponent>(FName("PickupSM"));
 	PickupTexture = CreateDefaultSubobject<UTexture2D>(FName("ItemTexture"));
 
+
 	//variables for the memory pickup
 	bIsActive = true;
 

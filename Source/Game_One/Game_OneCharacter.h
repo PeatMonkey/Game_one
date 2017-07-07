@@ -1,6 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "Pickup.h"
+#include "MyPlayerController.h"
 #include "GameFramework/Character.h"
 #include "Game_OneCharacter.generated.h"
 
@@ -47,7 +48,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Inventory Pickups")
 	void CollectPickups();
 
-	//Called every from ato detect inventory items 
+	//Called every from auto detect inventory items 
 	UFUNCTION(BlueprintCallable, Category = "Inventory Pickups")
 	void ScanForPickups();
 
@@ -74,13 +75,21 @@ protected:
 	//Items that are currently in the collection sphere of the character
 	TArray<APickup*> NearbyItems;
 
+	//the radius that the collection sphere will extend out from the characters root component
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collection Sphere")
+	float CollectionSphereRadius = 500.0f;
+
+	//allows the charactor to raycast out and detect whats directly in front of it
+	UFUNCTION(BlueprintCallable, Category = "Character Raycast")
+	void Raycast();
+
+	//Range that the raycast beems out
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Raycast")
+	float RaycastRange = 250.0f;
 	
 
 
 public:
-	//the radius that the collction sphere will extend out from the characters root component
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collection Sphere")
-	float CollectionSphereRadius = 500.0f;
 	
 	AGame_OneCharacter();
 
@@ -97,6 +106,14 @@ public:
 	void BeginPlay();
 
 	//called every frame
-	//void Tick(float DeltaSeconds);
+	void Tick(float DeltaSeconds);
+
+	UFUNCTION()
+	void HandleInventoryInput();
+
+	TArray<APickup*> GetInventory();
+
+private:
+
 
 };

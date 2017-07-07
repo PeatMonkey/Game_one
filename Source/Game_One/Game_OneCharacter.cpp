@@ -2,6 +2,7 @@
 
 #include "Game_One.h"
 #include "Pickup.h"
+#include "MyPlayerController.h"
 #include "Game_OneCharacter.h"
 
 AGame_OneCharacter::AGame_OneCharacter()
@@ -51,6 +52,8 @@ AGame_OneCharacter::AGame_OneCharacter()
 	PickupInFocus = nullptr;
 
 	Inventory.SetNum(MaxInventorySize);
+
+	RaycastRange = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,6 +77,9 @@ void AGame_OneCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 
 	//input for collecting pickups from the environment
 	InputComponent->BindAction("Collect Item", IE_Pressed, this, &AGame_OneCharacter::CollectPickups);
+
+	//hide or show the current inventory
+	InputComponent->BindAction("Show Inventory", IE_Pressed, this, &AGame_OneCharacter::HandleInventoryInput);
 
 }
 
@@ -130,17 +136,20 @@ void AGame_OneCharacter::CollectPickups() {
 		//call this version of Collected() as it will capture any Blueprint script we may use to override the function
 		PickupInFocus->Collected();
 
+		//turn off postprocessing
 		PickupInFocus->SetGlowEffect(false);
+		
 		//deactivate the item we picked up
 		PickupInFocus->SetActive(false);
 
 		//See is there is room in the inventory for more items
 		int32 AvailableSpot = Inventory.Find(nullptr);
+		
 		if (AvailableSpot != INDEX_NONE) {
 			Inventory[AvailableSpot] = PickupInFocus;
-			NextNearbyPickup();
 			PickupInFocus->Destroy();
-		}
+			NextNearbyPickup();
+		} else GLog->Log("You can't carry any more items!");
 	}
 		
 }
@@ -219,7 +228,7 @@ void AGame_OneCharacter::NextNearbyPickup() {
 
 		//safety first kids
 		if (!NearbyItems.IsValidIndex(item) && (NearbyItems[item] == nullptr)) {
-			UE_LOG(LogTemp, Warning, TEXT("THere was a issue caption!"));
+			UE_LOG(LogTemp, Warning, TEXT("There was a issue caption!"));
 			continue;
 		}
 
@@ -264,10 +273,63 @@ void AGame_OneCharacter::BeginPlay()
 }
 
 //Called very every frame
-/* void AGame_OneCharacter::Tick(float DeltaSeconds)
+void AGame_OneCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
 	//Scan for pickups 
 	//ScanForPickups();
-} */
+	//Raycast();
+}
+
+//this allows for us to open and then close the inventory UI screen. Realy just a wrapper that calls the HandleInventoryInput() method
+void AGame_OneCharacter::HandleInventoryInput() {
+	AMyPlayerController* Controller = Cast<AMyPlayerController>(this->GetController());
+
+	if (Controller) {
+		Controller->HandleInventoryInput();
+	}
+}
+
+//returns current inventory items 
+TArray<APickup*> AGame_OneCharacter::GetInventory() {
+	return Inventory;
+}
+
+//TODO find how to implement the starting and ending locations of the raytrace
+void AGame_OneCharacter::Raycast() {
+	//FirstPersonCameraComponent->GetComponentLocation();
+	//StartLocation + (FirstPersonCameraComponent->GetForwardVector() * RaycastRange);
+	
+	
+	//Calculating start and end location
+	FVector StartLocation;
+	FVector EndLocation;
+ 
+	FHitResult RaycastHit;
+ 
+	//Raycast should ignore the character
+	FCollisionQueryParams CQP;
+	CQP.AddIgnoredActor(this);
+ 
+	//Raycast
+	GetWorld()->LineTraceSingleByChannel(RaycastHit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldDynamic, CQP);
+ 
+	
+	APickup* Pickup = Cast<APickup>(RaycastHit.GetActor());
+ 
+	if (LastItemSeen && LastItemSeen != Pickup)
+	{
+		//If our character sees a different pickup then disable the glowing effect on the previous seen item
+		LastItemSeen->SetGlowEffect(false);
+	}
+ 
+	if (Pickup)
+	{
+		//Enable the glow effect on the current item
+		LastItemSeen = Pickup;
+		Pickup->SetGlowEffect(true);
+	}//Re-Initialize 
+	else LastItemSeen = nullptr;
+
+}

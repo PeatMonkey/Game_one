@@ -11,8 +11,7 @@ void UInventory_Slot_Class::SetEquippedItem()
 
 void UInventory_Slot_Class::SetItemTexture(APickup* Item)
 {
-	//If the item is valid update the widget's texture.
-	//If not, assign a null ptr to it so the widget won't broadcast wrong information to the player
+	//assign a texture if the pickup item is valid
 	(Item) ? ItemTexture = Item->GetPickupTexture() : ItemTexture = nullptr;
 }
 

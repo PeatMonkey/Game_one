@@ -16,6 +16,7 @@ class GAME_ONE_API UInventory_Widget : public UUserWidget
 	
 public:
 	/*Adds the widget into the viewport and populates the inventory slots*/
+	//TODO figure out how to convert (into C++) the bluprint code in the UW_Inventory event graph that assigns pickup item's textures to inventory slots
 	UFUNCTION(BlueprintImplementableEvent, Category = UI)
 		void Show();
 
