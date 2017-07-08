@@ -18,3 +18,15 @@ void AMemoryPickup::Collected_Implementation() {
 	//get ride of the item after the pickup
 	Destroy();
 }
+
+bool AMemoryPickup::CollectPickup() {
+	this->Destroy();
+	//FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetActorLocation();
+
+	//ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * 5.0);
+
+	//Again, this is provented from firing right at the get-go because we set ProjectileMovement->bAutoActivate = false;
+	//ProjectileMovement->Activate();
+
+	return true;
+}

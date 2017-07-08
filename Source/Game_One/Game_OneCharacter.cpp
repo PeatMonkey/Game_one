@@ -147,7 +147,7 @@ void AGame_OneCharacter::CollectPickups() {
 		
 		if (AvailableSpot != INDEX_NONE) {
 			Inventory[AvailableSpot] = PickupInFocus;
-			PickupInFocus->Destroy();
+			PickupInFocus->CollectPickup();
 			NextNearbyPickup();
 		} else GLog->Log("You can't carry any more items!");
 	}

@@ -60,3 +60,9 @@ void APickup::Collected_Implementation() {
 	FString DebugString = GetName();
 	UE_LOG(LogClass, Log, TEXT("You have collected %s"), *DebugString);
 }
+
+bool APickup::CollectPickup() {
+	
+	return this->Destroy();
+
+}

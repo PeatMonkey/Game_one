@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Pickup.h"
+#include "GameFramework/Actor.h"
+#include "Game_One.h"
 #include "MemoryPickup.generated.h"
 
 /**
@@ -20,5 +22,10 @@ public:
 	
 	//overide the Collected function
 	void Collected_Implementation() override;
+
+	bool CollectPickup() override;
+private:
+	
+	//UProjectileMovementComponent* ProjectileMovement = nullptr;
 	
 };

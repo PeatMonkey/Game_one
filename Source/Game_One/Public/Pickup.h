@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "Pickup.generated.h"
 
 UCLASS()
@@ -64,8 +65,13 @@ public:
 	//overide this one in child classes as the Collected() fucntion is a BlueprintNativeEvent
 	virtual void Collected_Implementation();
 
+	//This function is to be overriden in each child class. This defines custom behavior for when a Pickup item is picked up
+	virtual bool CollectPickup();
+
 protected:
 	//True when the item can be picked up
 	bool bIsActive;
+
+	
 
 };
