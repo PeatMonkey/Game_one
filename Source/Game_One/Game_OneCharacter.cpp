@@ -114,16 +114,6 @@ bool AGame_OneCharacter::ClosestPickupWithinCollectionRange(APickup * Object)
 		}
 	}
 
-
-	/* for (APickup* Pickup : NearbyItems) {
-		temp = CalcDistanceBetweenPawnAndActor(Cast<AActor>(Pickup));
-
-		if (temp >= ShortestDistance) {
-			Object = Pickup;
-			ShortestDistance = temp;
-		}
-	} */
-	
 	return true;
 }
 
@@ -147,9 +137,11 @@ void AGame_OneCharacter::CollectPickups() {
 		
 		if (AvailableSpot != INDEX_NONE) {
 			Inventory[AvailableSpot] = PickupInFocus;
-			PickupInFocus->CollectPickup();
+			PickupInFocus->ActivatePickup();
 			NextNearbyPickup();
-		} else GLog->Log("You can't carry any more items!");
+
+			//TODO log this message to the player
+		} else GLog->Log("Inventory MAX load reached!");
 	}
 		
 }
@@ -210,7 +202,22 @@ void AGame_OneCharacter::ScanForPickups() {
 	PickupInFocus = NearbyItems[0];
 
 	if (PickupInFocus != nullptr) {
-		PickupInFocus->SetGlowEffect(true);
+
+		EPickupBehavior Response = PickupInFocus->RequestPickup();
+
+		switch (Response) {
+
+		case EPickupBehavior::ET_Highlight:
+			PickupInFocus->SetGlowEffect(true);
+			break;
+		case EPickupBehavior::ET_Auto_Absorb:
+			PickupInFocus->SetGlowEffect(true);
+			PickupInFocus->ActivatePickup();
+			break;
+		
+
+		}
+
 	}
 }
 
@@ -277,8 +284,9 @@ void AGame_OneCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
-	//Scan for pickups 
-	//ScanForPickups();
+	//Scan for pickups every frame
+	ScanForPickups();
+	
 	//Raycast();
 }
 

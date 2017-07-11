@@ -6,6 +6,7 @@
 //set default values
 AMemoryPickup::AMemoryPickup() {
 
+	//Following allow the pickup to tick every frame
 	SetActorTickEnabled(true);
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.SetTickFunctionEnable(true);
@@ -13,9 +14,10 @@ AMemoryPickup::AMemoryPickup() {
 
 	//as soon as the battery is initialized physics propery wil be enabled
 	GetMesh()->SetSimulatePhysics(true);
-	//FObjectInitializer* ObjectInitializer = new FObjectInitializer();
 
 	SplineComp = CreateDefaultSubobject<USplineComponent>(FName(TEXT("SplineComp")), false);
+
+	PickupBehavior = EPickupBehavior::ET_Auto_Absorb;
 
 }
 
@@ -24,14 +26,6 @@ void AMemoryPickup::BeginPlay()
 {
 	Super::BeginPlay();
 
-}
-
-void AMemoryPickup::Collected_Implementation() {
-	// use the base pickup behavior
-	Super::Collected_Implementation();
-
-	//get ride of the item after the pickup
-	//Destroy();
 }
 
 // Called every frame
@@ -46,7 +40,7 @@ void AMemoryPickup::Tick(float DeltaTime)
 	} 
 }
 
-bool AMemoryPickup::CollectPickup() {
+bool AMemoryPickup::ActivatePickup() {
 	
 	UE_LOG(LogTemp, Warning, TEXT("Pickup event fired!!"));
 
@@ -61,6 +55,11 @@ bool AMemoryPickup::CollectPickup() {
 	bIsMoving = true;
 
 	return true;
+}
+
+EPickupBehavior AMemoryPickup::RequestPickup()
+{
+	return PickupBehavior;
 }
 
 void AMemoryPickup::MoveTowards() {
@@ -78,7 +77,7 @@ void AMemoryPickup::MoveTowards() {
 		SetActorRotation(CurrentRotation, ETeleportType::None);
 		SetActorLocation(CurrentLocation, false, Obstruction, ETeleportType::None);
 
-		CurrentDistance += 20;
+		CurrentDistance += MovementSpeed;
 		
 	}
 

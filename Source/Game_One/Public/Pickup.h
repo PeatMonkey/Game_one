@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "EPickupBehavior.h"
 #include "GameFramework/Character.h"
 #include "Pickup.generated.h"
 
@@ -11,20 +12,6 @@ class GAME_ONE_API APickup : public AActor
 {
 	GENERATED_BODY()
 private:
-
-	//mesh of the item we are picking up
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* PickupMesh;
-
-	//texture of the current pickup item
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
-	UTexture2D* PickupTexture;
-
-	// Name of the item
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
-	FString ItemName;
-
-
 
 public:	
 
@@ -62,16 +49,38 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void Collected();
 
-	//overide this one in child classes as the Collected() fucntion is a BlueprintNativeEvent
-	virtual void Collected_Implementation();
 
-	//This function is to be overriden in each child class. This defines custom behavior for when a Pickup item is picked up
-	virtual bool CollectPickup();
+	//overide the Collected function
+	void Collected_Implementation();
+
+	/*Please implement these bottom two in any base class*/
+
+	//This defines custom behavior for when a Pickup item is picked up
+	virtual bool ActivatePickup();
+	
+	//This function informs the caller the type of behavior that can be expected from the pickup class
+	virtual EPickupBehavior RequestPickup();
 
 protected:
+
 	//True when the item can be picked up
 	bool bIsActive;
 
-	
+	//mesh of the item we are picking up
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
+		class UStaticMeshComponent* PickupMesh;
+
+	//texture of the current pickup item
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
+		UTexture2D* PickupTexture;
+
+	// Name of the item
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
+		FString ItemName;
+
+	//Enum to indicate the behavior of the pickup for a caller class
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupProperties", meta = (AllowPrivateAccess = "true"))
+		EPickupBehavior PickupBehavior;
+
 
 };

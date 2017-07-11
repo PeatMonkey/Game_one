@@ -14,12 +14,14 @@ APickup::APickup()
 	//PickupSM = CreateDefaultSubobject<UStaticMeshComponent>(FName("PickupSM"));
 	PickupTexture = CreateDefaultSubobject<UTexture2D>(FName("ItemTexture"));
 
+	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
+	RootComponent = PickupMesh;
 
 	//variables for the memory pickup
 	bIsActive = true;
 
-	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
-	RootComponent = PickupMesh;
+	//set the default pickup behavior
+	PickupBehavior = EPickupBehavior::ET_Highlight;
 
 }
 
@@ -55,14 +57,20 @@ void APickup::SetGlowEffect(bool Status) {
 	
 }
 
-//gives debug information about the item that we picked up
-void APickup::Collected_Implementation() {
-	FString DebugString = GetName();
-	UE_LOG(LogClass, Log, TEXT("You have collected %s"), *DebugString);
+void APickup::Collected_Implementation()
+{
 }
 
-bool APickup::CollectPickup() {
+bool APickup::ActivatePickup() {
 	
+	FString DebugString = GetName();
+	UE_LOG(LogClass, Log, TEXT("You have collected %s"), *DebugString);
 	return this->Destroy();
 
 }
+
+EPickupBehavior APickup::RequestPickup()
+{
+	return PickupBehavior;
+}
+
